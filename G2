@@ -1,0 +1,33 @@
+# Попытка 5769917
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+
+train_data = pd.read_csv('train.csv')  # загружаем тренировочные данные
+test_data = pd.read_csv('test.csv')  # загружаем тестовые данные
+
+train_data = train_data.drop(['State'], axis=1)
+
+train_data['International plan'] = train_data['International plan'].replace({"Yes": 1, "No": 0}).astype('int64')
+train_data['Voice mail plan'] = train_data['Voice mail plan'].replace({"Yes": 1, "No": 0}).astype('int64')
+
+x_train = train_data.drop(columns=['Churn'])
+y_train = train_data['Churn']
+
+test_data = test_data.drop(['State'], axis=1)
+
+x_test = test_data
+
+# А также заменить Yes/No на 0/1 в признаках International plan и Voice mail plan
+
+test_data['International plan'] = test_data['International plan'].replace({"Yes": 1, "No": 0}).astype('int64')
+test_data['Voice mail plan'] = test_data['Voice mail plan'].replace({"Yes": 1, "No": 0}).astype('int64')
+
+# Инициализируем модель состоящую из 1000 решающих деревьев
+rf = RandomForestClassifier(n_estimators=10000, random_state=60)
+
+# Обучим эту модель
+rf.fit(x_train, y_train)
+
+y_pred = rf.predict(x_test)
+y_pred = pd.DataFrame(y_pred).set_axis(['Churn'], axis=1, inplace=False)
+y_pred.to_csv("file.csv", index=None)
